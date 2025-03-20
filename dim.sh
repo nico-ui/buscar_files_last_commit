@@ -15,29 +15,34 @@ then
     fi
 fi
 
-echo "[INFO] Vamos a proceder a buscar los archivos que necesitas"
-echo "[INFO] Indica el nombre del archivo: "
-read archivo
-archivos_encontrados=($(find . -iname "*$archivo*"))
-
 #Crear directorio y limpiar
-mkdir -p "$HOME/Documents/2024/Dimension/Check in/"
-rm -r "$HOME/Documents/2024/Dimension/Check in/"*
+DEST_DIR="$HOME/Documents/2024/Dimension/Check in/"
+mkdir -p "$DEST_DIR"
 
+# Verificar si el directorio esta vacio
+if [ -z "$(ls -A "$DEST_DIR")" ]; then
+    echo "[INFO] El directorio destino esta vacio."
+else
+    echo "[INFO] El directorio destino no esta vacio. Limpiando el directorio..."
+    rm -rf "$DEST_DIR"/*
+fi
 
-# Muestra y copia los archivos encontrados
-echo "[INFO] Archivos encontrados:"
-for archivo in "${archivos_encontrados[@]}"; do
+# Obtener los archivos nuevos del último commit
+archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=M -r HEAD))
+
+# Imprimir el número de archivos nuevos encontrados
+num_coincidencias=${#archivos_nuevos[@]}
+echo "[INFO] Numero de archivos nuevos encontrados: $num_coincidencias"
+
+# Muestra y copia los archivos nuevos encontrados
+echo "[INFO] Archivos nuevos encontrados:"
+for archivo in "${archivos_nuevos[@]}"; do
     echo "$archivo"
-    cp $archivo "$HOME/Documents/2024/Dimension/Check in/"
+    cp "$archivo" "$DEST_DIR"
 done
 
-# Imprimir el número de coincidencias encontradas
-num_coincidencias=${#archivos_encontrados[@]}
-echo "[INFO] Numero de archivos encontrados: $num_coincidencias"
-
-
 # Enrutar
+
 
 # Copiar en ruta dimensions
 
