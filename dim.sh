@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "[INFO] Script para buscar archivos en el repositorio"
 read -p "[INFO] Deaseas cambiarte de rama? (s/n): " respuesta
 if [ "$respuesta" == "s" ]
@@ -27,22 +29,26 @@ else
     rm -rf "$DEST_DIR"/*
 fi
 
-# Obtener los archivos nuevos del último commit
-archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=M -r HEAD))
+# Obtener los archivos .xml modificados del ultimo commit
+archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=M -r HEAD | grep '\.xml$'))
 
-# Imprimir el número de archivos nuevos encontrados
+# Imprimir el numero de archivos .xml nuevos encontrados
 num_coincidencias=${#archivos_nuevos[@]}
-echo "[INFO] Numero de archivos nuevos encontrados: $num_coincidencias"
+echo "[INFO] Numero de archivos .xml nuevos encontrados: $num_coincidencias"
 
 # Muestra y copia los archivos nuevos encontrados
-echo "[INFO] Archivos nuevos encontrados:"
+echo "[INFO] Archivos .xml nuevos encontrados:"
 for archivo in "${archivos_nuevos[@]}"; do
     echo "$archivo"
-    cp "$archivo" "$DEST_DIR"
+    # Obtener el directorio padre del archivo y eliminar las carpetas antes e igual a "nacar"
+    ruta_modificada=$(echo "$archivo" | sed -e 's/.*nacar\///')
+    # Crear la estructura de directorios en el destino
+    mkdir -p "$DEST_DIR$(dirname "$ruta_modificada")"
+    # Copiar el archivo al destino
+    cp "$archivo" "$DEST_DIR$ruta_modificada"
 done
 
 # Enrutar
-
 
 # Copiar en ruta dimensions
 
