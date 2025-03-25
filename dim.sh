@@ -26,11 +26,11 @@ if [ -z "$(ls -A "$DEST_DIR")" ]; then
     echo "[INFO] El directorio destino esta vacio."
 else
     echo "[INFO] El directorio destino no esta vacio. Limpiando el directorio..."
-    rm -rf "$DEST_DIR"/*
+    rm -rf "$DEST_DIR"/{*,.*}
 fi
 
-# Obtener los archivos .xml modificados del ultimo commit
-archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=M -r HEAD | grep '\.xml$'))
+# Obtener los archivos .xml, .properties, .xls, .sh y .java modificados o añadidos del ultimo commit
+archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD | grep -E '\.(xml|properties|xls|sh|java)$'))
 
 # Imprimir el numero de archivos .xml nuevos encontrados
 num_coincidencias=${#archivos_nuevos[@]}
@@ -46,6 +46,17 @@ for archivo in "${archivos_nuevos[@]}"; do
     mkdir -p "$DEST_DIR$(dirname "$ruta_modificada")"
     # Copiar el archivo al destino
     cp "$archivo" "$DEST_DIR$ruta_modificada"
+
+    # Si el archivo es .java, compilarlo y copiar el .class resultante
+    if [[ "$archivo" == *.java ]]; then
+        javac "$archivo"
+        class_file="${archivo%.java}.class"
+        if [ -f "$class_file" ]; then
+            ruta_modificada_class=$(echo "$class_file" | sed -e 's/.*nacar\///')
+            mkdir -p "$DEST_DIR$(dirname "$ruta_modificada_class")"
+            cp "$class_file" "$DEST_DIR$ruta_modificada_class"
+        fi
+    fi
 done
 
 # Enrutar
