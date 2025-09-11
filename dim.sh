@@ -31,14 +31,14 @@ else
     rm -rf "$DEST_DIR"/{*,.*}
 fi
 
-echo "[INFO] Buscando archivos .xml, .properties, .xls y .sh nuevos en el ultimo commit..."
+echo "[INFO] Buscando archivos .xml, .properties y .sh nuevos en el ultimo commit..."
 # Mostrar el ultimo commit
 echo "[INFO] Buscando en el Ultimo commit:"
 git log --oneline -1
 
-# Obtener los archivos .xml, .properties, .xls, .sh y .java modificados o añadidos del ultimo commit
-# archivos_nuevos=($(git diff --name-only --diff-filter=MA $(git merge-base HEAD origin/$(git rev-parse --abbrev-ref HEAD)) | grep -E '\.(xml|properties|xls|sh)$'))
-archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD | grep -E '\.(xml|properties|xls|sh)$'))
+# Obtener los archivos .xml, .properties, .sh y .java modificados o añadidos del ultimo commit
+# archivos_nuevos=($(git diff --name-only --diff-filter=MA $(git merge-base HEAD origin/$(git rev-parse --abbrev-ref HEAD)) | grep -E '\.(xml|properties|sh)$'))
+archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD | grep -E '\.(xml|properties|sh)$'))
 # Detecta si el último commit es un merge
 if [ "$(git rev-list --parents -n 1 HEAD | wc -w)" -gt 2 ]; then
     echo "[INFO] El último commit es un merge. Buscando archivos modificados entre los padres..."
@@ -46,9 +46,9 @@ if [ "$(git rev-list --parents -n 1 HEAD | wc -w)" -gt 2 ]; then
     echo "[INFO] Padre 1: $PARENT1"
     PARENT2=$(git rev-parse HEAD^1)
     echo "[INFO] Padre 2: $PARENT2"
-    archivos_nuevos=($(git diff --name-only --diff-filter=MA $PARENT1 $PARENT2 | grep -E '\.(xml|properties|xls|sh)$'))
+    archivos_nuevos=($(git diff --name-only --diff-filter=MA $PARENT1 $PARENT2 | grep -E '\.(xml|properties|sh)$'))
 else
-    archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD | grep -E '\.(xml|properties|xls|sh)$'))
+    archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD | grep -E '\.(xml|properties|sh)$'))
 fi
 
 # Imprimir el numero de archivos .xml nuevos encontrados
