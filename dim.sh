@@ -31,25 +31,33 @@ else
     rm -rf "$DEST_DIR"/{*,.*}
 fi
 
-echo "[INFO] Buscando archivos .xml, .properties y .sh nuevos en el ultimo commit..."
+echo "[INFO] Buscando archivos .xml, .properties, .xls, .dat y .sh nuevos en el ultimo commit..."
 # Mostrar el ultimo commit
 echo "[INFO] Buscando en el Ultimo commit:"
 git log --oneline -1
+#git log --oneline -4 | tail -n 1
 
-# Obtener los archivos .xml, .properties, .sh y .java modificados o añadidos del ultimo commit
-# archivos_nuevos=($(git diff --name-only --diff-filter=MA $(git merge-base HEAD origin/$(git rev-parse --abbrev-ref HEAD)) | grep -E '\.(xml|properties|sh)$'))
-archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD | grep -E '\.(xml|properties|sh)$'))
+EXT_FILES="xml|properties|xls|sh|dat|class"
+
+# Obtener los archivos .xml, .properties, .xls, .sh y .java modificados o añadidos del ultimo commit
+# archivos_nuevos=($(git diff --name-only --diff-filter=MA $(git merge-base HEAD origin/$(git rev-parse --abbrev-ref HEAD)) | grep -E '\.(xml|properties|xls|sh)$'))
+#archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD | grep -E '\.(xml|properties|xls|sh)$'))
+archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD~1..HEAD | grep -E '\.(xml|properties|xls|sh|dat)$'))
+# Para buscar en los últimos 3 commits
+#archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD~2..HEAD | grep -E '\.(xml|properties|xls|sh)$'))
+#archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD~4 | grep -E '\.(xml|properties|xls|sh)$'))
+
 # Detecta si el último commit es un merge
-if [ "$(git rev-list --parents -n 1 HEAD | wc -w)" -gt 2 ]; then
-    echo "[INFO] El último commit es un merge. Buscando archivos modificados entre los padres..."
-    PARENT1=$(git rev-parse HEAD^0)
-    echo "[INFO] Padre 1: $PARENT1"
-    PARENT2=$(git rev-parse HEAD^1)
-    echo "[INFO] Padre 2: $PARENT2"
-    archivos_nuevos=($(git diff --name-only --diff-filter=MA $PARENT1 $PARENT2 | grep -E '\.(xml|properties|sh)$'))
-else
-    archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD | grep -E '\.(xml|properties|sh)$'))
-fi
+# if [ "$(git rev-list --parents -n 1 HEAD | wc -w)" -gt 2 ]; then
+#     echo "[INFO] El último commit es un merge. Buscando archivos modificados entre los padres..."
+#     PARENT1=$(git rev-parse HEAD^0)
+#     echo "[INFO] Padre 1: $PARENT1"
+#     PARENT2=$(git rev-parse HEAD^1)
+#     echo "[INFO] Padre 2: $PARENT2"
+#     archivos_nuevos=($(git diff --name-only --diff-filter=MA $PARENT1 $PARENT2 | grep -E '\.(xml|properties|xls|sh|dat)$'))
+# else
+#     archivos_nuevos=($(git diff-tree --no-commit-id --name-only --diff-filter=MA -r HEAD | grep -E '\.(xml|properties|xls|sh|dat)$'))
+# fi
 
 # Imprimir el numero de archivos .xml nuevos encontrados
 num_coincidencias=${#archivos_nuevos[@]}
